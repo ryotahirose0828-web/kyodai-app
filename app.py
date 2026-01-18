@@ -1,170 +1,216 @@
 import streamlit as st
 import pandas as pd
 
-# --- 1. 京大文系学部の配点・合格データ定義 ---
-# ご提示いただいた数値を「合格最低点(pass_score_mean)」として設定しています。
-# weights: 共通テスト素点を京大配点に換算するための係数
+# ==========================================
+# 1. データ定義 (大学 > 学部 > 配点データ)
+# ==========================================
+# 2025年度新課程対応: 共通テストは「情報(100点)」を含めた1000点満点ベース
+# weights: 各科目の素点(100or200)に掛ける係数
 
-KYODAI_BUNKEI_DATA = {
-    "法学部": {
-        # 2025年度配点: 共テ270 + 二次615 = 885点満点
-        "center_max": 270,
-        "secondary_max": 615,
-        "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 165},
-        # 法学部換算: 900点→270点 (一律0.3倍)
-        "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.3, "sci": 0.3},
-        "pass_score_mean": 557.55  # user指定値
+UNIVERSITY_DATA = {
+    "京都大学 (文系)": {
+        "法学部": {
+            # 1000点を270点に圧縮 (一律0.27倍)
+            "center_max": 270, "secondary_max": 615,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 165},
+            "weights": {"jap": 0.27, "math": 0.27, "eng": 0.27, "soc": 0.27, "sci": 0.27, "info": 0.27},
+            "pass_score_mean": 557.55,
+            "eng_rule": "kyodai_special" # 京大式: R150/L50
+        },
+        "経済学部 (文系)": {
+            # 1000点を250点に圧縮 (一律0.25倍)
+            "center_max": 250, "secondary_max": 600,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 150},
+            "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.25, "info": 0.25},
+            "pass_score_mean": 546.55,
+            "eng_rule": "kyodai_special"
+        },
+        "文学部": {
+            # 1000点を250点に圧縮 (一律0.25倍)
+            "center_max": 250, "secondary_max": 500,
+            "secondary_subjects": {"国語": 150, "数学": 100, "英語": 150, "地歴": 100},
+            "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.25, "info": 0.25},
+            "pass_score_mean": 483.75,
+            "eng_rule": "kyodai_special"
+        },
+        "教育学部 (文系)": {
+            # 1000点を240点に圧縮 (一律0.24倍近似)
+            "center_max": 240, "secondary_max": 675,
+            "secondary_subjects": {"国語": 200, "数学": 150, "英語": 175, "地歴": 150},
+            "weights": {"jap": 0.24, "math": 0.24, "eng": 0.24, "soc": 0.24, "sci": 0.24, "info": 0.24},
+            "pass_score_mean": 566.385,
+            "eng_rule": "kyodai_special"
+        },
+        "総合人間学部 (文系)": {
+            # 1000点を225点に圧縮 (一律0.225倍近似)
+            "center_max": 225, "secondary_max": 600,
+            "secondary_subjects": {"国語": 150, "数学": 100, "英語": 200, "地歴": 150},
+            "weights": {"jap": 0.225, "math": 0.225, "eng": 0.225, "soc": 0.225, "sci": 0.225, "info": 0.225},
+            "pass_score_mean": 510.675,
+            "eng_rule": "kyodai_special"
+        }
     },
-    "経済学部 (文系)": {
-        # 2025年度配点: 共テ250 + 二次600 = 850点満点
-        "center_max": 250,
-        "secondary_max": 600,
-        "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 150}, # 論文等が含まれる場合あり
-        # 経済換算: 理科重視 (理科100→50点(0.5倍), 他は0.25倍)
-        "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5},
-        "pass_score_mean": 546.55  # user指定値
-    },
-    "文学部": {
-        # 配点: 共テ250 + 二次500 = 750点満点
-        "center_max": 250,
-        "secondary_max": 500,
-        "secondary_subjects": {"国語": 150, "数学": 100, "英語": 150, "地歴": 100},
-        # 文・教育は理科重視 (理科0.5倍, 他0.25倍)
-        "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5},
-        "pass_score_mean": 483.75  # user指定値
-    },
-    "教育学部 (文系)": {
-        # 2025年度配点: 共テ240 + 二次675 = 915点満点
-        "center_max": 240,
-        "secondary_max": 675,
-        "secondary_subjects": {"国語": 200, "数学": 150, "英語": 175, "地歴": 150},
-        # 教育換算目安: (厳密には科目毎に異なるが近似値として設定)
-        # 900→240への圧縮。理科基礎重視。
-        "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5}, # 近似設定
-        "pass_score_mean": 566.385 # user指定値
-    },
-    "総合人間学部 (文系)": {
-        # 2025年度配点: 共テ225 + 二次600 = 825点満点
-        "center_max": 225,
-        "secondary_max": 600,
-        "secondary_subjects": {"国語": 150, "数学": 100, "英語": 200, "地歴": 150},
-        # 総人換算: 5教科均等配点 (理科100→50=0.5? いや総人は400/900などの年もあるが、2025は共テ225)
-        # ここでは5教科バランス型として設定 (理科100→50, 他200→~44)
-        # 簡易的に一律0.25倍(225点)として計算
-        "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5},
-        "pass_score_mean": 510.675 # user指定値
+    "北海道大学 (文系)": {
+        # 北大共通ルール:
+        # 国数英(各200) → x0.3 (各60点)
+        # 地歴(200)・理科(100) → x0.4 (80点/40点)
+        # 情報(100) → x0.15 (15点)
+        # 合計満点: 315点
+        "総合入試 (文系)": {
+            "center_max": 315, "secondary_max": 450,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
+            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
+            "pass_score_mean": 550, # 満点増に伴い微調整
+            "eng_rule": "normal_sum" # 北大式: 単純合計
+        },
+        "文学部": {
+            "center_max": 315, "secondary_max": 450,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
+            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
+            "pass_score_mean": 555,
+            "eng_rule": "normal_sum"
+        },
+        "法学部": {
+            # 法学部独自: 270点満点換算 (全体を約0.857倍するイメージだが、ここでは係数を調整)
+            # 簡易的に 総合入試の配点比率 × (270/315) とする
+            "center_max": 270, "secondary_max": 480,
+            "secondary_subjects": {"国語": 160, "数学": 160, "英語": 160},
+            "weights": {"jap": 0.257, "math": 0.257, "eng": 0.257, "soc": 0.34, "sci": 0.34, "info": 0.13}, 
+            "pass_score_mean": 560,
+            "eng_rule": "normal_sum"
+        },
+        "経済学部": {
+            "center_max": 315, "secondary_max": 450,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
+            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
+            "pass_score_mean": 553,
+            "eng_rule": "normal_sum"
+        },
+        "教育学部": {
+            "center_max": 315, "secondary_max": 450,
+            "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
+            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
+            "pass_score_mean": 545,
+            "eng_rule": "normal_sum"
+        }
     }
 }
 
-# --- 2. アプリケーション設定 ---
-st.set_page_config(page_title="京大文系 合格判定シミュレーター", layout="centered")
+# ==========================================
+# 2. UI & 入力フォーム
+# ==========================================
+st.set_page_config(page_title="合格判定シミュレーター", layout="centered")
 
-st.title("京大文系 合格判定シミュレーター")
-st.markdown("設定された合格最低点（目標値）に基づいて、二次試験での必要点数を算出します。")
+st.title("🎓 大学入試 合格判定シミュレーター")
+st.caption("新課程入試（情報Iを含む1000点満点）に対応しています。")
 
-# 学部選択エリア
-selected_faculty = st.selectbox("志望学部を選んでください", list(KYODAI_BUNKEI_DATA.keys()))
-faculty_data = KYODAI_BUNKEI_DATA[selected_faculty]
+# 1. 大学・学部選択
+st.subheader("STEP 1: 志望校選択")
+c_uni, c_fac = st.columns(2)
+with c_uni:
+    selected_univ = st.selectbox("大学", list(UNIVERSITY_DATA.keys()))
+with c_fac:
+    faculty_list = list(UNIVERSITY_DATA[selected_univ].keys())
+    selected_faculty = st.selectbox("学部・方式", faculty_list)
 
-st.info(f"現在の設定目標点（最低点）: **{faculty_data['pass_score_mean']} 点** / {faculty_data['center_max'] + faculty_data['secondary_max']} 点満点")
+target_data = UNIVERSITY_DATA[selected_univ][selected_faculty]
+st.info(f"🎯 目標設定: **{target_data['pass_score_mean']} 点** / 合計 {target_data['center_max'] + target_data['secondary_max']} 点")
 
 st.divider()
 
-# --- 3. 共通テスト入力フォーム (文系特化) ---
-st.subheader("1. 共通テスト自己採点 (素点)")
-st.caption("手元の自己採点結果（100点満点など）をそのまま入力してください。")
+# 2. 共通テスト入力
+st.subheader("STEP 2: 共通テスト自己採点")
+st.caption("素点を入力してください。「情報」が追加されています。")
 
 col1, col2 = st.columns(2)
-
 with col1:
-    st.markdown("#####  国数英")
-    val_jap = st.number_input("国語 (200点満点)", 0, 200, 160)
-    val_m1 = st.number_input("数学IA (100点満点)", 0, 100, 70)
-    val_m2 = st.number_input("数学IIBC (100点満点)", 0, 100, 70)
+    st.markdown("##### 📝 主要科目")
+    val_jap = st.number_input("国語 (200)", 0, 200, 160)
+    val_m1 = st.number_input("数学IA (100)", 0, 100, 70)
+    val_m2 = st.number_input("数学IIBC (100)", 0, 100, 70)
     st.markdown("---")
-    st.markdown("##### 英語 (京大はR:L=3:1)")
-    val_eng_r = st.number_input("リーディング (100点満点)", 0, 100, 85)
-    val_eng_l = st.number_input("リスニング (100点満点)", 0, 100, 75)
+    st.markdown("##### 🇺🇸 英語 (R/L)")
+    val_eng_r = st.number_input("リーディング (100)", 0, 100, 85)
+    val_eng_l = st.number_input("リスニング (100)", 0, 100, 75)
 
 with col2:
-    st.markdown("#####  地歴公民 (2科目)")
-    val_soc1 = st.number_input("地歴公民 第1解答科目", 0, 100, 85)
-    val_soc2 = st.number_input("地歴公民 第2解答科目", 0, 100, 80)
+    st.markdown("##### 🌏 地歴公民・理科")
+    val_soc1 = st.number_input("地歴公民 ① (100)", 0, 100, 85)
+    val_soc2 = st.number_input("地歴公民 ② (100)", 0, 100, 80)
+    val_sci = st.number_input("理科基礎 合計 (100)", 0, 100, 75)
     st.markdown("---")
-    st.markdown("#####  　理科 (基礎2 or 発展1)")
-    st.caption("基礎2科目の場合は合計点(100点満点)を入力")
-    val_sci = st.number_input("理科 合計", 0, 100, 80)
+    st.markdown("##### 💻 情報")
+    val_info = st.number_input("情報I (100)", 0, 100, 80)
 
-# --- 4. 計算ロジック ---
-# 1. 素点を整理
-raw_jap = val_jap
-raw_math = val_m1 + val_m2
-raw_soc = val_soc1 + val_soc2
-raw_sci = val_sci
-# 英語: R150 + L50 に換算
-raw_eng_kyodai = (val_eng_r * 1.5) + (val_eng_l * 0.5)
 
-# 2. 学部ごとの重み付け計算 (共通テスト圧縮)
-w = faculty_data["weights"]
-score_jap = raw_jap * w["jap"]
-score_math = raw_math * w["math"]
-score_soc = raw_soc * w["soc"]
-score_sci = raw_sci * w["sci"]
-score_eng = raw_eng_kyodai * w["eng"]
+# ==========================================
+# 3. 計算ロジック
+# ==========================================
+w = target_data["weights"]
 
-total_center_score = score_jap + score_math + score_soc + score_sci + score_eng
+# 英語の計算 (大学分岐)
+if target_data["eng_rule"] == "kyodai_special":
+    # 京大式: R150 + L50 (素点200点満点に換算)
+    eng_base_score = (val_eng_r * 1.5) + (val_eng_l * 0.5)
+else:
+    # 北大式: 単純合計
+    eng_base_score = val_eng_r + val_eng_l
 
-# --- 5. 結果表示エリア ---
+# 共通テスト換算得点の計算
+score_jap = val_jap * w["jap"]
+score_math = (val_m1 + val_m2) * w["math"]
+score_eng = eng_base_score * w["eng"]
+score_soc = (val_soc1 + val_soc2) * w["soc"]
+score_sci = val_sci * w["sci"]
+score_info = val_info * w["info"] # 情報の加算
+
+total_center_score = score_jap + score_math + score_eng + score_soc + score_sci + score_info
+
+# ==========================================
+# 4. 結果表示
+# ==========================================
 st.divider()
-st.subheader(" 判定結果")
+st.subheader("📊 判定結果")
 
-# 共通テスト結果
+# 数値表示
 c1, c2, c3 = st.columns(3)
 with c1:
-    st.metric("共テ換算得点", f"{total_center_score:.2f} / {faculty_data['center_max']}")
+    st.metric("共テ換算得点", f"{total_center_score:.2f} / {target_data['center_max']}")
 with c2:
-    st.metric("英語(京大配点)", f"{raw_eng_kyodai:.0f} / 200")
-with c3:
-    if w["sci"] >= 0.5:
-        st.metric("理科の換算点", f"{score_sci:.1f} (高配点!)")
+    if selected_univ == "北海道大学 (文系)":
+         st.metric("情報の換算点", f"{score_info:.1f} (0.15倍)")
     else:
-        st.metric("理科の換算点", f"{score_sci:.1f}")
+         st.metric("情報の換算点", f"{score_info:.1f}")
+with c3:
+    required_secondary = target_data["pass_score_mean"] - total_center_score
+    st.metric("二次試験必要点", f"{max(0, required_secondary):.1f}")
 
 # 二次試験シミュレーション
-target_score = faculty_data["pass_score_mean"]
-required_secondary = target_score - total_center_score
-
 if required_secondary <= 0:
-    st.success("共通テストのみで目標点を超えています！")
-elif required_secondary > faculty_data["secondary_max"]:
-    st.error(f"二次試験で満点を取っても目標に届きません... (残り {required_secondary:.2f}点)")
+    st.success(f"🎉 共通テストのみで目標点を超えています！ (+{abs(required_secondary):.1f})")
+elif required_secondary > target_data["secondary_max"]:
+    st.error(f"😱 二次試験で満点を取っても届きません... (残り {required_secondary:.1f}点)")
 else:
-    st.info(f"合格最低点({target_score}点)まで、二次試験であと **{required_secondary:.2f}** 点必要です。")
+    st.info(f"目標達成まで、あと **{required_secondary:.1f}** 点 / {target_data['secondary_max']}点")
     
-    # プログレスバー
-    progress_val = min(max(required_secondary / faculty_data["secondary_max"], 0.0), 1.0)
-    st.progress(progress_val)
+    prog = min(required_secondary / target_data["secondary_max"], 1.0)
+    st.progress(prog)
 
-    # シミュレーター
-    with st.expander(" 二次試験の目標配分を決める", expanded=True):
-        st.write("各科目の目標点を設定してください")
+    with st.expander("📝 二次試験の配分シミュレーション", expanded=True):
+        st.write("科目のスライダーを動かして調整してください。")
         
         sim_total = 0
-        # カラム数を科目に合わせる
-        sim_cols = st.columns(len(faculty_data["secondary_subjects"]))
+        cols = st.columns(len(target_data["secondary_subjects"]))
         
-        for idx, (subj_name, max_pt) in enumerate(faculty_data["secondary_subjects"].items()):
-            with sim_cols[idx]:
-                # デフォルト値を50%程度に設定
-                val = st.slider(f"{subj_name} ({max_pt})", 0, max_pt, int(max_pt*0.5), key=subj_name)
+        for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
+            with cols[idx]:
+                val = st.slider(f"{subj}", 0, max_pt, int(max_pt * 0.6), key=f"sim_{subj}")
                 sim_total += val
         
-        # 最終判定
         gap = sim_total - required_secondary
-        st.markdown("---")
         st.markdown(f"### シミュレーション合計: {sim_total}点")
         
         if gap >= 0:
-            st.success(f" 合格ライン到達！ 余裕: +{gap:.2f}点")
+            st.success(f"✅ 目標クリア！ 余裕: +{gap:.1f}点")
         else:
-            st.warning(f" あと {abs(gap):.2f}点 上積みが必要です")
+            st.warning(f"⚠️ あと {abs(gap):.1f}点 足りません")
