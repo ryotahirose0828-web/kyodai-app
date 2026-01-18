@@ -114,7 +114,7 @@ with c_fac:
     selected_faculty = st.selectbox("学部・方式", faculty_list)
 
 target_data = UNIVERSITY_DATA[selected_univ][selected_faculty]
-st.info(f"🎯 目標設定: **{target_data['pass_score_mean']} 点** / 合計 {target_data['center_max'] + target_data['secondary_max']} 点")
+st.info(f" 目標設定: **{target_data['pass_score_mean']} 点** / 合計 {target_data['center_max'] + target_data['secondary_max']} 点")
 
 st.divider()
 
@@ -124,22 +124,22 @@ st.caption("素点を入力してください。「情報」が追加されて�
 
 col1, col2 = st.columns(2)
 with col1:
-    st.markdown("##### 📝 主要科目")
+    st.markdown("#####  主要科目")
     val_jap = st.number_input("国語 (200)", 0, 200, 160)
     val_m1 = st.number_input("数学IA (100)", 0, 100, 70)
     val_m2 = st.number_input("数学IIBC (100)", 0, 100, 70)
     st.markdown("---")
-    st.markdown("##### 🇺🇸 英語 (R/L)")
+    st.markdown("#####  英語 (R/L)")
     val_eng_r = st.number_input("リーディング (100)", 0, 100, 85)
     val_eng_l = st.number_input("リスニング (100)", 0, 100, 75)
 
 with col2:
-    st.markdown("##### 🌏 地歴公民・理科")
+    st.markdown("#####  地歴公民・理科")
     val_soc1 = st.number_input("地歴公民 ① (100)", 0, 100, 85)
     val_soc2 = st.number_input("地歴公民 ② (100)", 0, 100, 80)
     val_sci = st.number_input("理科基礎 合計 (100)", 0, 100, 75)
     st.markdown("---")
-    st.markdown("##### 💻 情報")
+    st.markdown("#####  情報")
     val_info = st.number_input("情報I (100)", 0, 100, 80)
 
 
@@ -187,16 +187,16 @@ with c3:
 
 # 二次試験シミュレーション
 if required_secondary <= 0:
-    st.success(f"🎉 共通テストのみで目標点を超えています！ (+{abs(required_secondary):.1f})")
+    st.success(f" 共通テストのみで目標点を超えています！ (+{abs(required_secondary):.1f})")
 elif required_secondary > target_data["secondary_max"]:
-    st.error(f"😱 二次試験で満点を取っても届きません... (残り {required_secondary:.1f}点)")
+    st.error(f" 二次試験で満点を取っても届きません... (残り {required_secondary:.1f}点)")
 else:
     st.info(f"目標達成まで、あと **{required_secondary:.1f}** 点 / {target_data['secondary_max']}点")
     
     prog = min(required_secondary / target_data["secondary_max"], 1.0)
     st.progress(prog)
 
-    with st.expander("📝 二次試験の配分シミュレーション", expanded=True):
+    with st.expander(" 二次試験の配分シミュレーション", expanded=True):
         st.write("科目のスライダーを動かして調整してください。")
         
         sim_total = 0
@@ -211,6 +211,6 @@ else:
         st.markdown(f"### シミュレーション合計: {sim_total}点")
         
         if gap >= 0:
-            st.success(f"✅ 目標クリア！ 余裕: +{gap:.1f}点")
+            st.success(f" 目標クリア！ 余裕: +{gap:.1f}点")
         else:
-            st.warning(f"⚠️ あと {abs(gap):.1f}点 足りません")
+            st.warning(f" あと {abs(gap):.1f}点 足りません")
