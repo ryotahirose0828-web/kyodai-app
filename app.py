@@ -358,4 +358,69 @@ with c3:
 if required_secondary <= 0:
     st.success(f"共通テストのみで目標点を超えています (+{abs(required_secondary):.1f})")
 elif required_secondary > target_data["secondary_max"]:
-    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f
+    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f}点)")
+else:
+    st.info(f"目標達成まで、二次試験であと {required_secondary:.1f} 点 / {target_data['secondary_max']}点")
+    
+    prog = min(required_secondary / target_data["secondary_max"], 1.0)
+    st.progress(prog)
+
+    with st.expander("二次試験の配分シミュレーション", expanded=True):
+        st.write("各科目の目標点数を入力してください。")
+        
+        sim_total = 0
+        cols = st.columns(len(target_data["secondary_subjects"]))
+        
+        for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
+            with cols[idx]:
+                val = st.number_input(
+                    f"{subj} (/{max_pt})", 
+                    min_value=0, 
+                    max_value=max_pt, 
+                    value=int(max_pt * 0.6),
+                    step=1,
+                    key=f"sim_{subj}"
+                )
+                sim_total += val
+        
+        gap = sim_total - required_secondary
+        st.markdown(f"**シミュレーション合計: {sim_total}点**")
+        
+        if gap >= 0:
+            st.success(f"目標クリア (余裕: +{gap:.1f}点)")
+            if st.button("この結果を履歴に保存", key="save_success"):
+                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                new_record = {
+                    "日時": now_str,
+                    "大学": selected_univ,
+                    "学部": selected_faculty,
+                    "共テ換算": f"{total_center_score:.1f}",
+                    "二次目標": f"{sim_total}点",
+                    "合否": "合格圏"
+                }
+                st.session_state['history'].append(new_record)
+                st.success("履歴に保存しました！")
+        else:
+            st.warning(f"あと {abs(gap):.1f}点 足りません")
+            if st.button("この結果を履歴に保存", key="save_fail"):
+                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                new_record = {
+                    "日時": now_str,
+                    "大学": selected_univ,
+                    "学部": selected_faculty,
+                    "共テ換算": f"{total_center_score:.1f}",
+                    "二次目標": f"{sim_total}点",
+                    "合否": f"不足 {abs(gap):.1f}"
+                }
+                st.session_state['history'].append(new_record)
+                st.success("履歴に保存しました！")
+
+# ==========================================
+# 5. 履歴表示エリア
+# ==========================================
+if st.session_state['history']:
+    st.divider()
+    st.subheader("📝 計算履歴")
+    df_history = pd.DataFrame(st.session_state['history'])
+    df_history = df_history.iloc[::-1]
+    st.dataframe(df_history, use_container_width=True)
