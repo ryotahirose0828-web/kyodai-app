@@ -24,8 +24,6 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "経済学部 (文系)": {
-            # 共テ300: 全て50点 (英語R150/L50 -> 200 -> 50) => 3:1
-            # 二次550: 国150, 数150, 英150, 社100
             "center_max": 300, "secondary_max": 550,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.5},
@@ -47,7 +45,6 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "総合人間学部 (文系)": {
-            # 共テ175: 国数英0点。社(200->50, x0.25), 理(100->100, x1.0), 情(100->25, x0.25)
             "center_max": 175, "secondary_max": 650,
             "secondary_subjects": {"国語": 150, "数学": 200, "英語": 200, "地歴": 100},
             "weights": {"jap": 0.0, "math": 0.0, "eng": 0.0, "soc": 0.25, "sci": 1.0, "info": 0.25},
@@ -60,11 +57,16 @@ UNIVERSITY_DATA = {
     # 京都大学 (理系)
     # ---------------------------------------------------------
     "京都大学 (理系)": {
+        "理学部": {
+            # 共テ250点: 地歴も25点(0.25倍)に修正
+            # 国数英理(0.25倍=各50点), 社情(0.25倍=各25点)
+            "center_max": 250, "secondary_max": 975,
+            "secondary_subjects": {"数学": 300, "理科①": 150, "理科②": 150, "英語": 225, "国語": 150},
+            "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.25, "info": 0.25},
+            "pass_score_mean": 750,
+            "eng_rule": "kyodai_special"
+        },
         "経済学部 (理系)": {
-            # 共テ300: 全て50点 (英語3:1)
-            # 二次550: 国150, 数150, 英150, 社100 (※理系も二次に社会がある)
-            # 理系は理科2科目(200点) -> 50点 (x0.25)
-            # 社会1科目(100点) -> 50点 (x0.5)
             "center_max": 300, "secondary_max": 550,
             "secondary_subjects": {"数学": 150, "英語": 150, "国語": 150, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.5},
@@ -72,7 +74,6 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "総合人間学部 (理系)": {
-            # 共テ125: 社(100->100), 情(100->25)。他0点。
             "center_max": 125, "secondary_max": 700,
             "secondary_subjects": {"数学": 200, "理科①": 100, "理科②": 100, "英語": 150, "国語": 150},
             "weights": {"jap": 0.0, "math": 0.0, "eng": 0.0, "soc": 1.0, "sci": 0.0, "info": 0.25},
@@ -84,13 +85,6 @@ UNIVERSITY_DATA = {
             "secondary_subjects": {"数学": 250, "理科①": 125, "理科②": 125, "英語": 200, "国語": 100},
             "weights": {"jap": 0.125, "math": 0.125, "eng": 0.25, "soc": 0.5, "sci": 0.125, "info": 0.5},
             "pass_score_mean": 630, 
-            "eng_rule": "kyodai_special"
-        },
-        "理学部": {
-            "center_max": 275, "secondary_max": 975,
-            "secondary_subjects": {"数学": 300, "理科①": 150, "理科②": 150, "英語": 225, "国語": 150},
-            "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.25},
-            "pass_score_mean": 750,
             "eng_rule": "kyodai_special"
         },
         "医学部 (医学科)": {
@@ -364,69 +358,4 @@ with c3:
 if required_secondary <= 0:
     st.success(f"共通テストのみで目標点を超えています (+{abs(required_secondary):.1f})")
 elif required_secondary > target_data["secondary_max"]:
-    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f}点)")
-else:
-    st.info(f"目標達成まで、二次試験であと {required_secondary:.1f} 点 / {target_data['secondary_max']}点")
-    
-    prog = min(required_secondary / target_data["secondary_max"], 1.0)
-    st.progress(prog)
-
-    with st.expander("二次試験の配分シミュレーション", expanded=True):
-        st.write("各科目の目標点数を入力してください。")
-        
-        sim_total = 0
-        cols = st.columns(len(target_data["secondary_subjects"]))
-        
-        for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
-            with cols[idx]:
-                val = st.number_input(
-                    f"{subj} (/{max_pt})", 
-                    min_value=0, 
-                    max_value=max_pt, 
-                    value=int(max_pt * 0.6),
-                    step=1,
-                    key=f"sim_{subj}"
-                )
-                sim_total += val
-        
-        gap = sim_total - required_secondary
-        st.markdown(f"**シミュレーション合計: {sim_total}点**")
-        
-        if gap >= 0:
-            st.success(f"目標クリア (余裕: +{gap:.1f}点)")
-            if st.button("この結果を履歴に保存", key="save_success"):
-                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                new_record = {
-                    "日時": now_str,
-                    "大学": selected_univ,
-                    "学部": selected_faculty,
-                    "共テ換算": f"{total_center_score:.1f}",
-                    "二次目標": f"{sim_total}点",
-                    "合否": "合格圏"
-                }
-                st.session_state['history'].append(new_record)
-                st.success("履歴に保存しました！")
-        else:
-            st.warning(f"あと {abs(gap):.1f}点 足りません")
-            if st.button("この結果を履歴に保存", key="save_fail"):
-                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                new_record = {
-                    "日時": now_str,
-                    "大学": selected_univ,
-                    "学部": selected_faculty,
-                    "共テ換算": f"{total_center_score:.1f}",
-                    "二次目標": f"{sim_total}点",
-                    "合否": f"不足 {abs(gap):.1f}"
-                }
-                st.session_state['history'].append(new_record)
-                st.success("履歴に保存しました！")
-
-# ==========================================
-# 5. 履歴表示エリア
-# ==========================================
-if st.session_state['history']:
-    st.divider()
-    st.subheader("📝 計算履歴")
-    df_history = pd.DataFrame(st.session_state['history'])
-    df_history = df_history.iloc[::-1]
-    st.dataframe(df_history, use_container_width=True)
+    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f
