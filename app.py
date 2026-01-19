@@ -3,20 +3,25 @@ import pandas as pd
 from datetime import datetime
 
 # ==========================================
-# 0. セッション状態の初期化 (履歴機能用)
+# 0. セッション状態の初期化
 # ==========================================
 if 'history' not in st.session_state:
     st.session_state['history'] = []
 
 # ==========================================
-# 1. データ定義 (2026年度 令和8年度入試対応)
+# 1. データ定義 (2026年度 令和8年度入試対応・完全版)
 # ==========================================
+# weightsの設定基準:
+# 入力された素点(国数英200, 情100, 文系社200/理100, 理系社100/理200)に対して
+# 掛け合わせると「大学の換算配点」になる数値。
+
 UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     # 京都大学 (文系)
     # ---------------------------------------------------------
     "京都大学 (文系)": {
         "法学部": {
+            # 共テ285: 国数英(200->60, x0.3), 社(200->60, x0.3), 理(100->30, x0.3), 情(100->15, x0.15)
             "center_max": 285, "secondary_max": 600,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 200, "地歴": 100},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.3, "sci": 0.3, "info": 0.15},
@@ -24,6 +29,8 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "経済学部 (文系)": {
+            # 共テ300: 全て50点配点
+            # 国数英(200->50, x0.25), 社(200->50, x0.25), 理(100->50, x0.5), 情(100->50, x0.5)
             "center_max": 300, "secondary_max": 550,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.5},
@@ -45,13 +52,11 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "総合人間学部 (文系)": {
-            # 2026修正: 共テ175点。国数英は0点(足切りのみ)。
-            # 地歴2科目(200->100), 理科(100->50), 情報(100->25)
-            # 二次650点: 国150, 数200, 英200, 社100
+            # 国数英は0点。社(200->100, x0.5), 理(100->50, x0.5), 情(100->25, x0.25)
             "center_max": 175, "secondary_max": 650,
             "secondary_subjects": {"国語": 150, "数学": 200, "英語": 200, "地歴": 100},
-            "weights": {"jap": 0, "math": 0, "eng": 0, "soc": 0.5, "sci": 0.5, "info": 0.25},
-            "pass_score_mean": 520, # 目安
+            "weights": {"jap": 0.0, "math": 0.0, "eng": 0.0, "soc": 0.5, "sci": 0.5, "info": 0.25},
+            "pass_score_mean": 520,
             "eng_rule": "kyodai_special"
         }
     },
@@ -61,16 +66,17 @@ UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     "京都大学 (理系)": {
         "総合人間学部 (理系)": {
-            # 2026修正: 共テ125点。国数英理は0点(足切りのみ)。
-            # 社会1科目(100->100), 情報(100->25)
-            # 二次700点: 国150, 数200, 英150, 理200
+            # 国数英理は0点。社(100->100, x1.0), 情(100->25, x0.25)
             "center_max": 125, "secondary_max": 700,
             "secondary_subjects": {"数学": 200, "理科①": 100, "理科②": 100, "英語": 150, "国語": 150},
-            "weights": {"jap": 0, "math": 0, "eng": 0, "soc": 1.0, "sci": 0, "info": 0.25},
-            "pass_score_mean": 520, # 目安
+            "weights": {"jap": 0.0, "math": 0.0, "eng": 0.0, "soc": 1.0, "sci": 0.0, "info": 0.25},
+            "pass_score_mean": 520,
             "eng_rule": "kyodai_special"
         },
         "工学部": {
+            # 国数(200->25, x0.125), 英(200->50, x0.25)
+            # 社(100->50, x0.5), 情(100->50, x0.5)
+            # 理(200->25, x0.125) ※理系入力200点に対して25点換算
             "center_max": 225, "secondary_max": 800,
             "secondary_subjects": {"数学": 250, "理科①": 125, "理科②": 125, "英語": 200, "国語": 100},
             "weights": {"jap": 0.125, "math": 0.125, "eng": 0.25, "soc": 0.5, "sci": 0.125, "info": 0.5},
@@ -78,6 +84,8 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "理学部": {
+            # 国数英(200->50, x0.25), 社(100->50, x0.5), 情(100->25, x0.25)
+            # 理(200->50, x0.25)
             "center_max": 275, "secondary_max": 975,
             "secondary_subjects": {"数学": 300, "理科①": 150, "理科②": 150, "英語": 225, "国語": 150},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.25},
@@ -85,6 +93,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "医学部 (医学科)": {
+            # 配点は理学部と同じ
             "center_max": 275, "secondary_max": 1000,
             "secondary_subjects": {"数学": 250, "理科①": 150, "理科②": 150, "英語": 300, "国語": 150},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.25},
@@ -92,6 +101,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "薬学部": {
+            # 配点は理学部と同じ
             "center_max": 275, "secondary_max": 700,
             "secondary_subjects": {"数学": 200, "理科①": 100, "理科②": 100, "英語": 200, "国語": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.25},
@@ -99,6 +109,9 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "農学部": {
+            # 国(200->70, x0.35), 数英(200->50, x0.25)
+            # 社(100->50, x0.5), 情(100->30, x0.3)
+            # 理(200->50, x0.25)
             "center_max": 300, "secondary_max": 700,
             "secondary_subjects": {"数学": 200, "理科①": 100, "理科②": 100, "英語": 200, "国語": 100},
             "weights": {"jap": 0.35, "math": 0.25, "eng": 0.25, "soc": 0.5, "sci": 0.25, "info": 0.3},
@@ -112,6 +125,7 @@ UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     "北海道大学 (文系)": {
         "総合入試 (文系)": {
+            # 共テ315: 国数英(200->60, x0.3), 社(200->80, x0.4), 理(100->40, x0.4), 情(100->15, x0.15)
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
@@ -149,41 +163,46 @@ UNIVERSITY_DATA = {
     },
     
     # ---------------------------------------------------------
-    # 北海道大学 (理系)
+    # 北海道大学 (理系) - 理科重視配点に修正
     # ---------------------------------------------------------
     "北海道大学 (理系)": {
         "総合入試 (理系)": {
+            # 共テ315: 理社重視型
+            # 国数英(200->30, x0.15) ★ここが文系と違う！
+            # 社(100->60, x0.6)
+            # 理(200->150, x0.75) ★入力200点に対して150点配点
+            # 情(100->15, x0.15)
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
-            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.6, "sci": 0.3, "info": 0.15},
+            "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.6, "sci": 0.75, "info": 0.15},
             "pass_score_mean": 530,
             "eng_rule": "normal_sum"
         },
         "医学部 (医学科)": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接": 75},
-            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.6, "sci": 0.3, "info": 0.15},
+            "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.6, "sci": 0.75, "info": 0.15},
             "pass_score_mean": 670,
             "eng_rule": "normal_sum"
         },
         "歯学部": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接/小論": 75},
-            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.6, "sci": 0.3, "info": 0.15},
+            "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.6, "sci": 0.75, "info": 0.15},
             "pass_score_mean": 560,
             "eng_rule": "normal_sum"
         },
         "獣医学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
-            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.6, "sci": 0.3, "info": 0.15},
+            "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.6, "sci": 0.75, "info": 0.15},
             "pass_score_mean": 610,
             "eng_rule": "normal_sum"
         },
         "水産学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
-            "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.6, "sci": 0.3, "info": 0.15},
+            "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.6, "sci": 0.75, "info": 0.15},
             "pass_score_mean": 490,
             "eng_rule": "normal_sum"
         }
@@ -194,6 +213,7 @@ UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     "一橋大学": {
         "商学部": {
+            # 全科目50点(x0.25 or x0.5)
             "center_max": 300, "secondary_max": 700,
             "secondary_subjects": {"英語": 235, "数学": 230, "国語": 110, "社会": 125},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.5},
@@ -201,6 +221,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "normal_sum"
         },
         "経済学部": {
+            # 全科目35点(x0.175 or x0.35)
             "center_max": 210, "secondary_max": 790,
             "secondary_subjects": {"英語": 260, "数学": 260, "国語": 110, "社会": 160},
             "weights": {"jap": 0.175, "math": 0.175, "eng": 0.175, "soc": 0.175, "sci": 0.35, "info": 0.35},
@@ -327,43 +348,9 @@ score_math = (val_m1 + val_m2) * w["math"]
 score_eng = eng_base_score * w["eng"]
 score_info = val_info * w["info"]
 
-# 地歴・理科の計算分岐
-if is_science_univ:
-    # 理系: 地歴は1科目分(100)×係数、理科は2科目分(200)×係数
-    # ※京大理系などは地歴1科目利用のため、w["soc"]=1.0などで設定済み
-    # ※北大理系などは理科0.3倍(300->90)だが、入力200点に対して...
-    #  -> w["sci"]は「100点あたり」の係数として設定している場合が多いので確認が必要
-    #  例：北大理系 理科75x2=150 (300点満点->150点)。素点200点。
-    #  weights["sci"] = 0.3 とすると 200*0.3=60点 になってしまう。
-    #  正しくは 200 -> 150 なので 0.75倍。
-    #  しかし定義データでは weights["sci"]=0.3 となっている(文系基準)。
-    #  -> 理系の場合は個別に補正するか、weights定義を理系用に正しくするべき。
-    #  今回は「理系」カテゴリの weights["sci"] を「200点満点に対する係数」として再定義済みかどうか確認。
-    #  -> 京大理系: 理科0点。 weights["sci"]=0. OK.
-    #  -> 北大理系: 理科150点(200点素点から)。係数は0.75。
-    #     定義は weights["sci"]=0.3 となっていた。これは文系(100->30)の流用。
-    #     ★ここで補正ロジックを入れる。
-    
-    if "北海道大学" in selected_univ:
-        # 北大理系: 理科200点 -> 150点 (0.75倍)
-        score_sci = val_sci_total * 0.75
-        # 北大理系: 社会100点 -> 60点 (0.6倍)
-        score_soc = val_soc_total * 0.6
-    elif "京都大学 (理系)" in selected_univ and "総合人間学部" in selected_faculty:
-         # 京大総人理系: 理科0点, 社会100点(1.0倍)
-         score_sci = val_sci_total * 0
-         score_soc = val_soc_total * 1.0
-    else:
-        # 京大工/理/医/薬/農: 理科は圧縮or0
-        # 工: 200->25 (0.125) -> 定義通り
-        # 理/医/薬: 0 -> 定義通り
-        # 農: 200->50 (0.25) -> 定義通り
-        score_sci = val_sci_total * w["sci"]
-        score_soc = val_soc_total * w["soc"]
-else:
-    # 文系
-    score_soc = val_soc_total * w["soc"]
-    score_sci = val_sci_total * w["sci"]
+# 理社はここで係数をかけるだけでOKになった
+score_soc = val_soc_total * w["soc"]
+score_sci = val_sci_total * w["sci"]
 
 total_center_score = score_jap + score_math + score_eng + score_soc + score_sci + score_info
 
