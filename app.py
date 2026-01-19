@@ -305,7 +305,7 @@ with c1:
     st.metric("共テ換算得点", f"{total_center_score:.2f} / {target_data['center_max']}")
 with c2:
     if w["info"] >= 0.5:
-        st.metric("情報の換算点", f"{score_info:.1f} (高配点!)")
+        st.metric("情報の換算点", f"{score_info:.1f} ")
     else:
         st.metric("情報の換算点", f"{score_info:.1f}")
 with c3:
