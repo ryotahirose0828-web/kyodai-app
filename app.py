@@ -14,7 +14,7 @@ UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     "京都大学 (文系)": {
         "法学部": {
-            # [確認済] 共テ285点: 950点を285点に圧縮 (全科目x0.3)
+            # 共テ285点: 950点を285点に圧縮 (全科目x0.3)
             # 情報は素点50点扱いx0.3=15点 (つまり100点素点に対しては係数0.15)
             "center_max": 285, "secondary_max": 600,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 200, "地歴": 100},
@@ -23,7 +23,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "経済学部 (文系)": {
-            # [確認済] 共テ300点: 全科目50点均等 (理科・情報も0.5倍で50点)
+            # 共テ300点: 全科目50点均等 (理科・情報も0.5倍で50点)
             "center_max": 300, "secondary_max": 550,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.5},
@@ -31,7 +31,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "文学部": {
-            # [確認済] 共テ265点: 国数英社理50(0.25/0.5) + 情報15(0.15)
+            # 共テ265点: 国数英社理50(0.25/0.5) + 情報15(0.15)
             "center_max": 265, "secondary_max": 500,
             "secondary_subjects": {"国語": 150, "数学": 100, "英語": 150, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.15},
@@ -39,7 +39,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "教育学部 (文系)": {
-            # [修正] 共テ265点: 国数英社理50 + 情報15
+            # 共テ265点: 国数英社理50 + 情報15
             "center_max": 265, "secondary_max": 650,
             "secondary_subjects": {"国語": 150, "数学": 200, "英語": 200, "地歴": 100},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.15},
@@ -47,7 +47,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "kyodai_special"
         },
         "総合人間学部 (文系)": {
-            # [確認済] 共テ175点: 国数英社30, 理30, 情25
+            # 共テ175点: 国数英社30, 理30, 情25
             "center_max": 175, "secondary_max": 650,
             "secondary_subjects": {"国語": 150, "数学": 200, "英語": 200, "地歴": 100},
             "weights": {"jap": 0.15, "math": 0.15, "eng": 0.15, "soc": 0.15, "sci": 0.3, "info": 0.25},
@@ -103,7 +103,7 @@ UNIVERSITY_DATA = {
     # ---------------------------------------------------------
     "一橋大学": {
         "商学部": {
-            # [確認済] 共テ300点: 全科目50点均等
+            # 共テ300点: 全科目50点均等
             "center_max": 300, "secondary_max": 700,
             "secondary_subjects": {"英語": 235, "数学": 230, "国語": 110, "社会": 125},
             "weights": {"jap": 0.25, "math": 0.25, "eng": 0.25, "soc": 0.25, "sci": 0.5, "info": 0.5},
@@ -111,7 +111,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "normal_sum"
         },
         "経済学部": {
-            # [確認済] 共テ210点: 全科目35点均等
+            # 共テ210点: 全科目35点均等
             "center_max": 210, "secondary_max": 790,
             "secondary_subjects": {"英語": 260, "数学": 260, "国語": 110, "社会": 160},
             "weights": {"jap": 0.175, "math": 0.175, "eng": 0.175, "soc": 0.175, "sci": 0.35, "info": 0.35},
@@ -119,7 +119,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "normal_sum"
         },
         "法学部": {
-            # [確認済] 共テ250点: 国英40, 数社50, 理40, 情30
+            # 共テ250点: 国英40, 数社50, 理40, 情30
             "center_max": 250, "secondary_max": 750,
             "secondary_subjects": {"英語": 280, "数学": 180, "国語": 130, "社会": 160},
             "weights": {"jap": 0.2, "math": 0.25, "eng": 0.2, "soc": 0.25, "sci": 0.4, "info": 0.3},
@@ -127,7 +127,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "normal_sum"
         },
         "社会学部": {
-            # [確認済] 共テ180点: 理科90点, 他は20点(情10点)
+            # 共テ180点: 理科90点, 他は20点(情10点)
             "center_max": 180, "secondary_max": 820,
             "secondary_subjects": {"英語": 230, "数学": 130, "国語": 180, "社会": 280},
             "weights": {"jap": 0.1, "math": 0.1, "eng": 0.1, "soc": 0.1, "sci": 0.9, "info": 0.1},
@@ -135,7 +135,7 @@ UNIVERSITY_DATA = {
             "eng_rule": "normal_sum"
         },
         "SDS学部": {
-            # [確認済] 共テ250点: 情50点, 他40点
+            # 共テ250点: 情50点, 他40点
             "center_max": 250, "secondary_max": 750,
             "secondary_subjects": {"英語": 230, "数学": 330, "国語": 100, "総合": 90},
             "weights": {"jap": 0.2, "math": 0.2, "eng": 0.2, "soc": 0.2, "sci": 0.4, "info": 0.5},
@@ -257,14 +257,22 @@ else:
     st.progress(prog)
 
     with st.expander("二次試験の配分シミュレーション", expanded=True):
-        st.write("科目のスライダーを動かして調整してください。")
+        st.write("各科目の目標点数を入力してください。")
         
         sim_total = 0
         cols = st.columns(len(target_data["secondary_subjects"]))
         
         for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
             with cols[idx]:
-                val = st.slider(f"{subj}", 0, max_pt, int(max_pt * 0.6), key=f"sim_{subj}")
+                # 数値入力に変更
+                val = st.number_input(
+                    f"{subj} (/{max_pt})", 
+                    min_value=0, 
+                    max_value=max_pt, 
+                    value=int(max_pt * 0.6), # デフォルト6割
+                    step=1,
+                    key=f"sim_{subj}"
+                )
                 sim_total += val
         
         gap = sim_total - required_secondary
