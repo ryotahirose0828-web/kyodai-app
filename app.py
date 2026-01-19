@@ -227,9 +227,9 @@ UNIVERSITY_DATA = {
 # ==========================================
 # 2. UI & 入力フォーム
 # ==========================================
-st.set_page_config(page_title="合格判定シミュレーター", layout="centered")
+st.set_page_config(page_title="得点シミュレーター", layout="centered")
 
-st.title("大学入試 合格判定シミュレーター")
+st.title("大学入試 得点シミュレーター")
 st.caption("2026年度(令和8年度)新課程入試対応。入力履歴機能付き。")
 
 # 1. 大学・学部選択
