@@ -112,84 +112,83 @@ UNIVERSITY_DATA = {
     },
 
     # ---------------------------------------------------------
-    # 北海道大学 (文系)
+    # 北海道大学 (文系) - 目標点を情報分(+11点)修正
     # ---------------------------------------------------------
     "北海道大学 (文系)": {
         "総合入試 (文系)": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
-            "pass_score_mean": 517, 
+            "pass_score_mean": 528, # +11
             "eng_rule": "normal_sum"
         },
         "文学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
-            "pass_score_mean": 522,
+            "pass_score_mean": 533, # +11
             "eng_rule": "normal_sum"
         },
         "法学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15}, 
-            "pass_score_mean": 520,
+            "pass_score_mean": 531, # +11
             "eng_rule": "normal_sum"
         },
         "経済学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
-            "pass_score_mean": 520,
+            "pass_score_mean": 531, # +11
             "eng_rule": "normal_sum"
         },
         "教育学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"国語": 150, "数学": 150, "英語": 150},
             "weights": {"jap": 0.3, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.4, "info": 0.15},
-            "pass_score_mean": 502,
+            "pass_score_mean": 513, # +11
             "eng_rule": "normal_sum"
         }
     },
     
     # ---------------------------------------------------------
-    # 北海道大学 (理系) - 正しい配点へ修正
+    # 北海道大学 (理系) - 目標点を情報分(+11点)修正
     # ---------------------------------------------------------
     "北海道大学 (理系)": {
         "総合入試 (理系)": {
-            # 国80(0.4), 数60(0.3), 理60(0.3), 英60(0.3), 社40(0.4), 情15(0.15)
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 530,
+            "pass_score_mean": 541, # +11
             "eng_rule": "normal_sum"
         },
         "医学部 (医学科)": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接": 75},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 670,
+            "pass_score_mean": 681, # +11
             "eng_rule": "normal_sum"
         },
         "歯学部": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接/小論": 75},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 560,
+            "pass_score_mean": 571, # +11
             "eng_rule": "normal_sum"
         },
         "獣医学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 610,
+            "pass_score_mean": 621, # +11
             "eng_rule": "normal_sum"
         },
         "水産学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 490,
+            "pass_score_mean": 501, # +11
             "eng_rule": "normal_sum"
         }
     },
