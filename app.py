@@ -269,14 +269,14 @@ else:
     # 通常: 単純合計 (200点満点)
     eng_base_score = val_eng_r + val_eng_l
 
-# 理科の補正 (理系200点入力 -> 係数調整)
-final_sci_score = 0
+# 理科の計算（ここを修正：変数名を score_sci に統一）
+score_sci = 0
 if "理系" in selected_univ:
     # 理系: 素点200点入力
-    final_sci_score = val_sci * w["sci"]
+    score_sci = val_sci * w["sci"]
 else:
     # 文系: 素点100点入力
-    final_sci_score = val_sci * w["sci"]
+    score_sci = val_sci * w["sci"]
 
 score_jap = val_jap * w["jap"]
 score_math = (val_m1 + val_m2) * w["math"]
@@ -291,8 +291,8 @@ else:
     # 文系は2科目利用
     score_soc = (val_soc1 + val_soc2) * w["soc"]
 
+# 合計計算（ここでエラーが出ていました）
 total_center_score = score_jap + score_math + score_eng + score_soc + score_sci + score_info
-
 # ==========================================
 # 4. 結果表示
 # ==========================================
