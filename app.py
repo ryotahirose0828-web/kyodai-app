@@ -156,39 +156,67 @@ UNIVERSITY_DATA = {
     # 北海道大学 (理系) - 目標点を情報分(+11点)修正
     # ---------------------------------------------------------
     "北海道大学 (理系)": {
-        "総合入試 (理系)": {
+        "総合入試 (理系) - 標準": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 541, # +11
+            "pass_score_mean": 541,
+            "eng_rule": "normal_sum"
+        },
+        "総合入試 (理系) - 数学重点": {
+            "center_max": 315, "secondary_max": 525,
+            "secondary_subjects": {"数学": 225, "理科①": 75, "理科②": 75, "英語": 150},
+            "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
+            "pass_score_mean": 585,
+            "eng_rule": "normal_sum"
+        },
+        "総合入試 (理系) - 物理重点": {
+            "center_max": 315, "secondary_max": 487.5,
+            "secondary_subjects": {"数学": 150, "理科①(重点)": 112.5, "理科②": 75, "英語": 150},
+            "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
+            "pass_score_mean": 565,
+            "eng_rule": "normal_sum"
+        },
+        "総合入試 (理系) - 化学重点": {
+            "center_max": 315, "secondary_max": 487.5,
+            "secondary_subjects": {"数学": 150, "理科①(重点)": 112.5, "理科②": 75, "英語": 150},
+            "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
+            "pass_score_mean": 565,
+            "eng_rule": "normal_sum"
+        },
+        "総合入試 (理系) - 生物重点": {
+            "center_max": 315, "secondary_max": 487.5,
+            "secondary_subjects": {"数学": 150, "理科①(重点)": 112.5, "理科②": 75, "英語": 150},
+            "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
+            "pass_score_mean": 565,
             "eng_rule": "normal_sum"
         },
         "医学部 (医学科)": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接": 75},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 681, # +11
+            "pass_score_mean": 681,
             "eng_rule": "normal_sum"
         },
         "歯学部": {
             "center_max": 315, "secondary_max": 525,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150, "面接/小論": 75},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 571, # +11
+            "pass_score_mean": 571,
             "eng_rule": "normal_sum"
         },
         "獣医学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 621, # +11
+            "pass_score_mean": 621,
             "eng_rule": "normal_sum"
         },
         "水産学部": {
             "center_max": 315, "secondary_max": 450,
             "secondary_subjects": {"数学": 150, "理科①": 75, "理科②": 75, "英語": 150},
             "weights": {"jap": 0.4, "math": 0.3, "eng": 0.3, "soc": 0.4, "sci": 0.3, "info": 0.15},
-            "pass_score_mean": 501, # +11
+            "pass_score_mean": 501,
             "eng_rule": "normal_sum"
         }
     },
@@ -216,212 +244,4 @@ UNIVERSITY_DATA = {
             "secondary_subjects": {"英語": 280, "数学": 180, "国語": 130, "社会": 160},
             "weights": {"jap": 0.2, "math": 0.25, "eng": 0.2, "soc": 0.25, "sci": 0.4, "info": 0.3},
             "pass_score_mean": 600,
-            "eng_rule": "normal_sum"
-        },
-        "社会学部": {
-            "center_max": 180, "secondary_max": 820,
-            "secondary_subjects": {"英語": 230, "数学": 130, "国語": 180, "社会": 280},
-            "weights": {"jap": 0.1, "math": 0.1, "eng": 0.1, "soc": 0.1, "sci": 0.9, "info": 0.1},
-            "pass_score_mean": 600,
-            "eng_rule": "normal_sum"
-        },
-        "SDS学部": {
-            "center_max": 250, "secondary_max": 750,
-            "secondary_subjects": {"英語": 230, "数学": 330, "国語": 100, "総合": 90},
-            "weights": {"jap": 0.2, "math": 0.2, "eng": 0.2, "soc": 0.2, "sci": 0.4, "info": 0.5},
-            "pass_score_mean": 630,
-            "eng_rule": "normal_sum"
-        }
-    }
-}
-
-# ==========================================
-# 2. UI & 入力フォーム
-# ==========================================
-st.set_page_config(page_title="合格判定シミュレーター", layout="centered")
-
-st.title("大学入試 合格判定シミュレーター")
-st.caption("2026年度(令和8年度)新課程入試対応。入力履歴機能付き。")
-
-# 1. 大学・学部選択
-st.subheader("1. 志望校選択")
-c_uni, c_fac = st.columns(2)
-with c_uni:
-    selected_univ = st.selectbox("大学", list(UNIVERSITY_DATA.keys()))
-with c_fac:
-    faculty_list = list(UNIVERSITY_DATA[selected_univ].keys())
-    selected_faculty = st.selectbox("学部・方式", faculty_list)
-
-target_data = UNIVERSITY_DATA[selected_univ][selected_faculty]
-
-# 文系・理系の自動判定
-is_science_univ = "理系" in selected_univ
-
-# 目標点の設定
-st.markdown("---")
-target_score = st.number_input(
-    "合格目標点 (総合点)", 
-    value=float(target_data['pass_score_mean']), 
-    step=1.0,
-    help="デフォルト値は過去の合格最低点などをベースにした目安です。"
-)
-st.info(f"目標設定: {target_score} 点 (満点: {target_data['center_max'] + target_data['secondary_max']} 点)")
-
-st.divider()
-
-# 2. 共通テスト入力
-st.subheader("2. 共通テスト自己採点")
-st.caption("素点（新課程 1000点満点）を入力してください。")
-
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown("##### 国数英")
-    val_jap = st.number_input("国語 (200)", 0, 200, 160)
-    val_m1 = st.number_input("数学IA (100)", 0, 100, 70)
-    val_m2 = st.number_input("数学IIBC (100)", 0, 100, 70)
-    st.markdown("---")
-    st.markdown("##### 英語 (R/L)")
-    val_eng_r = st.number_input("リーディング (100)", 0, 100, 85)
-    val_eng_l = st.number_input("リスニング (100)", 0, 100, 75)
-
-with col2:
-    if is_science_univ:
-        # --- 理系用フォーム ---
-        st.markdown("##### 地歴公民・理科 (理系)")
-        st.info("理系：地歴1科目、理科2科目")
-        
-        val_soc_s = st.number_input("地歴公民 (100)", 0, 100, 80, key="soc_s")
-        val_sci1 = st.number_input("理科 第1解答科目 (100)", 0, 100, 75, key="sci1")
-        val_sci2 = st.number_input("理科 第2解答科目 (100)", 0, 100, 75, key="sci2")
-        
-        val_soc_total = val_soc_s
-        val_sci_total = val_sci1 + val_sci2 
-        
-    else:
-        # --- 文系用フォーム ---
-        st.markdown("##### 地歴公民・理科 (文系)")
-        st.success("文系：地歴2科目、理科基礎(または専門1)")
-        
-        val_soc1 = st.number_input("地歴公民 ① (100)", 0, 100, 85, key="soc1")
-        val_soc2 = st.number_input("地歴公民 ② (100)", 0, 100, 80, key="soc2")
-        val_sci_base = st.number_input("理科 (基礎2 or 専門1) (100)", 0, 100, 80, key="sci_base")
-        
-        val_soc_total = val_soc1 + val_soc2 
-        val_sci_total = val_sci_base 
-    
-    st.markdown("---")
-    st.markdown("##### 情報")
-    val_info = st.number_input("情報I (100)", 0, 100, 80)
-
-
-# ==========================================
-# 3. 計算ロジック
-# ==========================================
-w = target_data["weights"]
-
-# 英語の計算
-if target_data["eng_rule"] == "kyodai_special":
-    eng_base_score = (val_eng_r * 1.5) + (val_eng_l * 0.5)
-else:
-    eng_base_score = val_eng_r + val_eng_l
-
-# 科目別スコア計算
-score_jap = val_jap * w["jap"]
-score_math = (val_m1 + val_m2) * w["math"]
-score_eng = eng_base_score * w["eng"]
-score_info = val_info * w["info"]
-
-# 理社はここで係数をかけるだけでOK
-score_soc = val_soc_total * w["soc"]
-score_sci = val_sci_total * w["sci"]
-
-total_center_score = score_jap + score_math + score_eng + score_soc + score_sci + score_info
-
-# ==========================================
-# 4. 結果表示
-# ==========================================
-st.divider()
-st.subheader("判定結果")
-
-c1, c2, c3 = st.columns(3)
-with c1:
-    st.metric("共テ換算得点", f"{total_center_score:.2f} / {target_data['center_max']}")
-with c2:
-    if w["info"] >= 0.5:
-        st.metric("情報の換算点", f"{score_info:.1f} (高配点!)")
-    else:
-        st.metric("情報の換算点", f"{score_info:.1f}")
-with c3:
-    required_secondary = target_score - total_center_score
-    st.metric("二次試験必要点", f"{max(0, required_secondary):.1f}")
-
-# 二次試験シミュレーション
-if required_secondary <= 0:
-    st.success(f"共通テストのみで目標点を超えています (+{abs(required_secondary):.1f})")
-elif required_secondary > target_data["secondary_max"]:
-    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f}点)")
-else:
-    st.info(f"目標達成まで、二次試験であと {required_secondary:.1f} 点 / {target_data['secondary_max']}点")
-    
-    prog = min(required_secondary / target_data["secondary_max"], 1.0)
-    st.progress(prog)
-
-    with st.expander("二次試験の配分シミュレーション", expanded=True):
-        st.write("各科目の目標点数を入力してください。")
-        
-        sim_total = 0
-        cols = st.columns(len(target_data["secondary_subjects"]))
-        
-        for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
-            with cols[idx]:
-                val = st.number_input(
-                    f"{subj} (/{max_pt})", 
-                    min_value=0, 
-                    max_value=max_pt, 
-                    value=int(max_pt * 0.6),
-                    step=1,
-                    key=f"sim_{subj}"
-                )
-                sim_total += val
-        
-        gap = sim_total - required_secondary
-        st.markdown(f"**シミュレーション合計: {sim_total}点**")
-        
-        if gap >= 0:
-            st.success(f"目標クリア (余裕: +{gap:.1f}点)")
-            if st.button("この結果を履歴に保存", key="save_success"):
-                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                new_record = {
-                    "日時": now_str,
-                    "大学": selected_univ,
-                    "学部": selected_faculty,
-                    "共テ換算": f"{total_center_score:.1f}",
-                    "二次目標": f"{sim_total}点",
-                    "合否": "合格圏"
-                }
-                st.session_state['history'].append(new_record)
-                st.success("履歴に保存しました！")
-        else:
-            st.warning(f"あと {abs(gap):.1f}点 足りません")
-            if st.button("この結果を履歴に保存", key="save_fail"):
-                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-                new_record = {
-                    "日時": now_str,
-                    "大学": selected_univ,
-                    "学部": selected_faculty,
-                    "共テ換算": f"{total_center_score:.1f}",
-                    "二次目標": f"{sim_total}点",
-                    "合否": f"不足 {abs(gap):.1f}"
-                }
-                st.session_state['history'].append(new_record)
-                st.success("履歴に保存しました！")
-
-# ==========================================
-# 5. 履歴表示エリア
-# ==========================================
-if st.session_state['history']:
-    st.divider()
-    st.subheader("📝 計算履歴")
-    df_history = pd.DataFrame(st.session_state['history'])
-    df_history = df_history.iloc[::-1]
-    st.dataframe(df_history, use_container_width=True)
+            "eng_
