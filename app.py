@@ -321,4 +321,138 @@ with col2:
         
         val_soc_s = st.number_input("地歴公民 (100)", 0, 100, 80, key="soc_s")
         val_sci1 = st.number_input("理科 第1解答科目 (100)", 0, 100, 75, key="sci1")
-        val_sci2 = st.number_input("理科 第2解答科目 (100)", 0, 100, 75
+        val_sci2 = st.number_input("理科 第2解答科目 (100)", 0, 100, 75, key="sci2")
+        
+        val_soc_total = val_soc_s
+        val_sci_total = val_sci1 + val_sci2 
+        
+    else:
+        # --- 文系用フォーム ---
+        st.markdown("##### 地歴公民・理科 (文系)")
+        st.success("文系：地歴2科目、理科基礎(または専門1)")
+        
+        val_soc1 = st.number_input("地歴公民 ① (100)", 0, 100, 85, key="soc1")
+        val_soc2 = st.number_input("地歴公民 ② (100)", 0, 100, 80, key="soc2")
+        val_sci_base = st.number_input("理科 (基礎2 or 専門1) (100)", 0, 100, 80, key="sci_base")
+        
+        val_soc_total = val_soc1 + val_soc2 
+        val_sci_total = val_sci_base 
+    
+    st.markdown("---")
+    st.markdown("##### 情報")
+    val_info = st.number_input("情報I (100)", 0, 100, 80)
+
+
+# ==========================================
+# 3. 計算ロジック
+# ==========================================
+w = target_data["weights"]
+
+# 英語の計算
+if target_data["eng_rule"] == "kyodai_special":
+    eng_base_score = (val_eng_r * 1.5) + (val_eng_l * 0.5)
+else:
+    eng_base_score = val_eng_r + val_eng_l
+
+# 科目別スコア計算
+score_jap = val_jap * w["jap"]
+score_math = (val_m1 + val_m2) * w["math"]
+score_eng = eng_base_score * w["eng"]
+score_info = val_info * w["info"]
+
+# 理社はここで係数をかけるだけでOK
+score_soc = val_soc_total * w["soc"]
+score_sci = val_sci_total * w["sci"]
+
+total_center_score = score_jap + score_math + score_eng + score_soc + score_sci + score_info
+
+# ==========================================
+# 4. 結果表示
+# ==========================================
+st.divider()
+st.subheader("判定結果")
+
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.metric("共テ換算得点", f"{total_center_score:.2f} / {target_data['center_max']}")
+with c2:
+    if w["info"] >= 0.5:
+        st.metric("情報の換算点", f"{score_info:.1f} (高配点!)")
+    else:
+        st.metric("情報の換算点", f"{score_info:.1f}")
+with c3:
+    required_secondary = target_score - total_center_score
+    st.metric("二次試験必要点", f"{max(0, required_secondary):.1f}")
+
+# 二次試験シミュレーション
+if required_secondary <= 0:
+    st.success(f"共通テストのみで目標点を超えています (+{abs(required_secondary):.1f})")
+elif required_secondary > target_data["secondary_max"]:
+    st.error(f"二次試験で満点を取っても届きません (残り {required_secondary:.1f}点)")
+else:
+    st.info(f"目標達成まで、二次試験であと {required_secondary:.1f} 点 / {target_data['secondary_max']}点")
+    
+    prog = min(required_secondary / target_data["secondary_max"], 1.0)
+    st.progress(prog)
+
+    with st.expander("二次試験の配分シミュレーション", expanded=True):
+        st.write("各科目の目標点数を入力してください。")
+        
+        sim_total = 0
+        cols = st.columns(len(target_data["secondary_subjects"]))
+        
+        for idx, (subj, max_pt) in enumerate(target_data["secondary_subjects"].items()):
+            with cols[idx]:
+                # 浮動小数点が混ざってもエラーにならないようfloat型で統一
+                val = st.number_input(
+                    f"{subj} (/{max_pt})", 
+                    min_value=0.0,              # float
+                    max_value=float(max_pt),    # float
+                    value=float(int(max_pt * 0.6)), # float
+                    step=1.0,                   # float
+                    format="%.1f",
+                    key=f"sim_{subj}"
+                )
+                sim_total += val
+        
+        gap = sim_total - required_secondary
+        st.markdown(f"**シミュレーション合計: {sim_total}点**")
+        
+        if gap >= 0:
+            st.success(f"目標クリア (余裕: +{gap:.1f}点)")
+            if st.button("この結果を履歴に保存", key="save_success"):
+                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                new_record = {
+                    "日時": now_str,
+                    "大学": selected_univ,
+                    "学部": selected_faculty,
+                    "共テ換算": f"{total_center_score:.1f}",
+                    "二次目標": f"{sim_total}点",
+                    "合否": "合格圏"
+                }
+                st.session_state['history'].append(new_record)
+                st.success("履歴に保存しました！")
+        else:
+            st.warning(f"あと {abs(gap):.1f}点 足りません")
+            if st.button("この結果を履歴に保存", key="save_fail"):
+                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                new_record = {
+                    "日時": now_str,
+                    "大学": selected_univ,
+                    "学部": selected_faculty,
+                    "共テ換算": f"{total_center_score:.1f}",
+                    "二次目標": f"{sim_total}点",
+                    "合否": f"不足 {abs(gap):.1f}"
+                }
+                st.session_state['history'].append(new_record)
+                st.success("履歴に保存しました！")
+
+# ==========================================
+# 5. 履歴表示エリア
+# ==========================================
+if st.session_state['history']:
+    st.divider()
+    st.subheader("📝 計算履歴")
+    df_history = pd.DataFrame(st.session_state['history'])
+    df_history = df_history.iloc[::-1]
+    st.dataframe(df_history, use_container_width=True)
